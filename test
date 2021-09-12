@@ -1,0 +1,1 @@
+This is a program that creates and write into a file without fstream, using the POSIX interface

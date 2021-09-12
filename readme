@@ -1,0 +1,11 @@
+open terminal
+
+for run   	./toFile
+for compile  	g++ WriteToFile.cpp -o toFile
+
+
+if you have problem with test file, do these commands
+
+chmod +777 test
+recompile 
+run
