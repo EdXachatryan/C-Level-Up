@@ -1,0 +1,14 @@
+Start walidating regression tests...
+Start test1
+Finished test1 Failure
+
+Start test2
+Finished test2 Success
+
+Start test3
+Finished test3 Failure
+
+Start test4
+During test4 execution accrued unresolved situation
+Finished waliating regression tests...
+
