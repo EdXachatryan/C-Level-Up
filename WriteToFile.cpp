@@ -7,23 +7,18 @@
 
 int main()
 {
+        int isClosestdOut =  close(1);
+        if (isClosestdOut == -1 ) {
+            perror("Cannot close std out descriptor");
+            return EXIT_FAILURE;
+        }
+
         int fd = open("test", O_WRONLY | O_CREAT );
         if (fd == -1 ) {
             perror("File cannot be opened");
             return EXIT_FAILURE;
         }
-        char buf [256] = "This is a program that creates and write into a file without fstream, using the POSIX interface";
-        ssize_t fgWrite = write(fd, &buf, strlen(buf));
-
-        if (fgWrite == -1)
-        {
-                perror("Cannot write in file");
-                return EXIT_FAILURE;
-        } 
-        else if (fgWrite < strlen(buf))
-        {
-              perror("it is not all text");  
-        }
+        std::cout << "This is a program that creates and write into a file without fstream, using the POSIX interface" << std::endl;
 
         close(fd);
         return 0;
