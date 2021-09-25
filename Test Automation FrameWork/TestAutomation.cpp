@@ -15,9 +15,6 @@ enum ETestResults
 	Unresolved
 };
 
-std::string TestAutomation::FINISHED = "Finished waliating regression tests...";
-std::string TestAutomation::START = "Start walidating regression tests...";
-
 const char* enumToString( int result)
 {
 	switch (result)
@@ -32,127 +29,80 @@ const char* enumToString( int result)
 	}
 }
 
-
-void checkError(int err)
-{
-	if (err != 0)
-		std::cerr << errno << std::endl; 
-}
-
-bool TestAutomation::run()
-{
-	if (m_WriteToFile)
-	{
-		writeToFile();
-	}
-	else
-	{
-		sendFeeadBack();
-	}
-}
-
 void TestAutomation::addTest(testInfo info)
 {
 	arrTests.push_back(info);
 }
 
-void TestAutomation::writeToFile()
+bool TestAutomation::run()
 {
 
-	int IOfd = close(1);
-	if (IOfd)
+	int stdout_copy = dup(1);
+	int rep_fd = open("Report", O_WRONLY | O_CREAT | O_TRUNC);
+	if (rep_fd == -1)
 	{
-		std::cerr <<  errno << std::endl;
+		return false;
 	}
 
-	int fd = open("Report", O_WRONLY | O_CREAT | O_TRUNC);
-	std::cout << START << std::endl;
-	
+	int pipes[2];
+	dup2(rep_fd, 1);
 	int status;
 	for (int i = 0; i < arrTests.size(); i++)
 	{
 		pid_t pID = fork();
 		if (pID > 0)
 		{
-			wait(&status);
-			if (WIFSIGNALED(status) != 0)
+			if (m_WriteToFile)
 			{
-				std::cout << "During "<< arrTests[i].first << " execution accrued unresolved situation" << std::endl;
+				wait(&status);
+				if (WIFSIGNALED(status) != 0)
+				{
+					std::cout << "During "<< arrTests[i].first << " execution accrued unresolved situation" << std::endl;
+				}
 			}
-		}
-		else if (pID == 0)
-		{
-			std::cout << "Start "<< arrTests[i].first << std::endl;
-			bool retValue = arrTests[i].second();
-
-			std::cout << "Finished " << arrTests[i].first << " " << enumToString(retValue) << std::endl;
-			exit(EXIT_SUCCESS);
-		}
-		else
-		{
-			std::cerr << "fork creation failed" << std::endl;
-			exit(EXIT_FAILURE);
-		}
-	}
-	
-	std::cout << FINISHED << std::endl;
- 	close(fd);
-}
-
-void TestAutomation::sendFeeadBack()
-{
- 	std::stringstream ss;
-	char buf;
-	int status;
-	
-	int IOfd = close(1);
-	if (IOfd)
-	{
-		std::cerr <<  errno << std::endl;
-	}
-
-	int fd = open("Report", O_WRONLY | O_CREAT | O_TRUNC);
-	ss << START << '\n';
-
-	for (int i = 0; i < arrTests.size(); i++)
-	{
-		int pipes[2];
-		if (pipe(pipes) == -1)
-		{
-			std::cerr << "An error ocurred with opening the pipi\n";
-		}
-		char buf[100];
-
-		pid_t pID = fork();
-		if (pID > 0)
-		{
-			ss << "Start "<< arrTests[i].first << '\n';
-
-			close(pipes[1]);
-			read(pipes[0], buf, 30);
-			close(pipes[0]);
-			wait(&status);
-			if (WIFSIGNALED(status) != 0)
-			{
-				ss << "During "<< arrTests[i].first << " execution accrued unresolved situation" << '\n';
-			} 
 			else
-			{
-				ss << buf << '\n';
+			{	
+				std::stringstream ss;
+				close(pipes[1]);
+				char* buffer = new char[1024];
+				int n;
+				while((n=read(pipes[0],buffer,1))>0){
+					ss << buffer;
+				}
+				close(pipes[0]);
+				wait(&status);
+				if (WIFSIGNALED(status) != 0)
+				{
+					ss << "During "<< arrTests[i].first << " execution accrued unresolved situation" << '\n';
+				}
+				std::cout << ss.str() << std::endl;
 			}
 		}
 		else if (pID == 0)
 		{
-			close(pipes[0]);
+			std::string report = std::string("Start ") +  arrTests[i].first ;
+			
+			if (!m_WriteToFile)
+			{	
+				close(pipes[0]);
+				dup2(pipes[1], 1);
+				std::cout << "using pipes" << std::endl; // for test
+			}
+			std::cout << report << std::endl;
+
 			bool retValue = arrTests[i].second();
-			std::string report = "Finished " ;
+			report = "Finished " ;
 			report += arrTests[i].first;
 			report += " ";
 			report += enumToString(retValue);
-			report += '\n';;
+			report += '\n';
 
-			write(pipes[1], report.c_str(),   strlen(report.c_str()) + 1);
-			close(pipes[1]);
+			std::cout << report << std::endl;
+
+			if (!m_WriteToFile)
+			{
+				close(pipes[1]);
+			}
 			exit(EXIT_SUCCESS);
 		}
 		else
@@ -161,6 +111,8 @@ void TestAutomation::sendFeeadBack()
 			exit(EXIT_FAILURE);
 		}
 	}
-	ss << FINISHED << '\n';
-	std::cout << ss.str() << std::endl;
+	
+	dup2(stdout_copy, 1 );
+	close(stdout_copy);
+	return true;
 }

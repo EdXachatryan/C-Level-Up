@@ -16,10 +16,9 @@ int main(int argc, char* argv[])
 		
 	TestAutomation test(isRedirectional);
 
-	test.addTest(std::make_pair ("test1", &test1));
-	test.addTest(std::make_pair ("test2", &test2));
-	test.addTest(std::make_pair ("test3", &test3));
-	test.addTest(std::make_pair ("test4", &test4));
+	test.addTest(std::make_pair ("testIsEqualZerro", &testIsEqualZerro));
+	test.addTest(std::make_pair ("testConnection", &testConnection));
+	test.addTest(std::make_pair ("testDevidZerro", &testDevidZerro));
 	test.run();
 
 	return 0;

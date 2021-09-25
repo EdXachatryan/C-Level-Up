@@ -6,7 +6,7 @@
 #include <iostream>
 
 using fnPtr =  bool (*) ();
-using testInfo = std::pair<const char*, fnPtr>;
+using testInfo = std::pair<std::string, fnPtr>;
 
 class TestAutomation
 {
@@ -16,14 +16,7 @@ class TestAutomation
 	public:
 		TestAutomation(bool writeToFIle) : m_WriteToFile(writeToFIle)  {}
 		void addTest(testInfo);
-		void clearTests();
-
 		bool run();
-
-
-	private:
-		void writeToFile();
-		void sendFeeadBack();
 
 	private:
 		bool m_WriteToFile;
