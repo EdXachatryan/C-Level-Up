@@ -1,14 +1,16 @@
-Start walidating regression tests...
-Start test1
-Finished test1 Failure
+Start testIsEqualZerro
+Starte isEqualZerro test function
+5 is not equal zerro
+Finished testIsEqualZerro Failure
 
-Start test2
-Finished test2 Success
+Start testConnection
+64 bytes from 175.517.100.131: icmp_seq=1 ttl=86 time=85.1 ms
+64 bytes from 175.517.100.131: icmp_seq=1 ttl=86 time=85.1 ms
+64 bytes from 175.517.100.131: icmp_seq=1 ttl=86 time=85.1 ms
+64 bytes from 175.517.100.131: icmp_seq=1 ttl=86 time=85.1 ms
+Finished testConnection Success
 
-Start test3
-Finished test3 Failure
-
-Start test4
-During test4 execution accrued unresolved situation
-Finished waliating regression tests...
-
+Start testDevidZerro
+Starte testDevidZerro test function
+run 5/0
+During testDevidZerro execution accrued unresolved situation
