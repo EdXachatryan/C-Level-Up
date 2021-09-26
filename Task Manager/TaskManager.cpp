@@ -38,12 +38,9 @@ TaskManager::TaskManager()
 		std::cerr << errno << std::endl;
 }
 
-
 bool TaskManager::createTask(const char* FIFOName, const char* command )
 {
 	pid_t pid = fork();
-	int stdout_copy = dup(1);
-	
 	if (pid > 0 )
 	{
 		int tskMngFD = open(s_TskManagerFifo, O_WRONLY);
@@ -72,10 +69,10 @@ bool TaskManager::createTask(const char* FIFOName, const char* command )
 		read(tskMngFD_R, &sss, 8);
 		read(tskMngFD_R, execCommand, sss + 1);
 		close(tskMngFD_R);
-		
 		if (mkfifo(fifoName, S_IRWXU) == -1)
-			std::cerr << strerror(errno) << std::endl;
+			std::cout << strerror(errno) << std::endl;
 		close(1);
+		
 		
 		if (open(fifoName, O_WRONLY) == -1)
 			ERROR_FAILURE
@@ -94,9 +91,5 @@ bool TaskManager::createTask(const char* FIFOName, const char* command )
 		std::cerr << "fork creation failed" << std::endl;
 		exit(EXIT_FAILURE);
 	}
-
-	dup2(stdout_copy, 1);
-	close(stdout_copy);
-
 	return true;
 }

@@ -8,6 +8,7 @@
 #include <unistd.h>
  #include <fcntl.h>
 
+extern int inotify_fD;
 extern const char* s_TskManagerFifo ;
 
 class TaskManager

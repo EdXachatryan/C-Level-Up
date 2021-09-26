@@ -18,14 +18,7 @@ void Client::execCommand(const char* FIFOName, const char* command )
 
 void Client::showCommandInfo(const char* name)
 {
-	auto itFifo = cmdfifoNames.find(name);
-	if (itFifo == cmdfifoNames.end())
-	{
-		std::cout << "Here is no " << name << " file" << std::endl;
-		return;
-	}
-
-	int fd = open(itFifo->second, O_RDONLY);
+	int fd = open(name, O_RDONLY );
 	char* buffer = new char[1024];
 	int n;
 	std::cout << "=============================================" << std::endl;
