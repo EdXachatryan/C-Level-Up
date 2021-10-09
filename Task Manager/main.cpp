@@ -14,7 +14,6 @@ int main()
 	{
 		std::cout<< "Enter Fifo name then command" << std::endl;
 		std::string pipeName, command;
-		//std::cin >>  pipeName >> command;
 		std::string line;
 		std::getline( std::cin, line );
 		pipeName = line.substr(0, line.find_first_of(' '));
