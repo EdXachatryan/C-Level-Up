@@ -4,7 +4,6 @@ Client::~Client()
 {
 	for (auto it = fifoNames.begin(); it != fifoNames.end(); ++it)
 	{
-		std::cout << fifoNames.size();
 		if(unlink(it->c_str()) != 0)
 			std::cerr << it->c_str() << " didn't delete" << std::endl;
 	}
