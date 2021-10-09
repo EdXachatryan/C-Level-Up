@@ -3,20 +3,19 @@
 
 #include <string>
 #include "TaskManager.h"
-#include <map>
+#include <set>
 
 class Client
 {
 	public:
 
 		~Client();
-		void execCommand(const char* FIFOName, const char* command );
-		void showCommandInfo(const char* fifoName);
-		void removeFifo(const char* fifoName);
+		void execCommand(std::string fifoName, std::string command );
+		void showCommandInfo(std::string fifoName);
+		void removeFifo(std::string fifoName);
 
 	private:
-		std::map<const char*, const char* > cmdfifoNames; 
+		std::set<std::string> fifoNames; 
 };
-
 
 #endif 

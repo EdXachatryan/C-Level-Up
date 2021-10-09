@@ -6,10 +6,9 @@
 #include <iostream>
 #include <string.h>
 #include <unistd.h>
- #include <fcntl.h>
+#include <fcntl.h>
 
-extern int inotify_fD;
-extern const char* s_TskManagerFifo ;
+
 
 class TaskManager
 {
@@ -19,11 +18,11 @@ private:
 	~TaskManager() { }
 
 public:
-
+	static std::string m_FifoName;
 	static TaskManager* getInsance();
 	static void releaseInstance();
 
-	bool createTask(const char* FIFOName, const char* command );
+	bool createTask(std::string FIFOName, std::string command );
 };
 
 #endif

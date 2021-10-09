@@ -3,26 +3,36 @@
 #include <fcntl.h>
 #include <sys/stat.h>
 #include <unistd.h>
-
 #include "Client.h"
-  #include <sys/inotify.h>
-
-
-#define EVENT_SIZE  ( sizeof (struct inotify_event) )
-#define EVENT_BUF_LEN     ( 1024 * ( EVENT_SIZE + 16 ) )
-
-const char* s_TskManagerFifo = "tksFIFO";
-int inotify_fD = inotify_init();
-
+#include "utility.h"
 int main()
 {
 	TaskManager::getInsance();
-	Client cc;
-	cc.execCommand("lsFifo", "ls");
-	cc.execCommand("pwdFifo", "pwd");
+	Client client;
 
-	cc.showCommandInfo("lsFifo");
-	cc.showCommandInfo("pwdFifo");
+	while (true)
+	{
+		std::cout<< "Enter Fifo name then command" << std::endl;
+		std::string pipeName, command;
+		//std::cin >>  pipeName >> command;
+		std::string line;
+		std::getline( std::cin, line );
+		pipeName = line.substr(0, line.find_first_of(' '));
+		command = line.substr(line.find_first_of(' ')+1, line.size());
+
+		if (command == "exit")
+		{
+			break;
+		}
+		else if (command == "read")
+		{
+			client.showCommandInfo(pipeName.c_str());
+		}
+		else
+		{
+			client.execCommand(pipeName.c_str(),command.c_str());
+		}
+	}
 
 	TaskManager::releaseInstance();
 	return 0;

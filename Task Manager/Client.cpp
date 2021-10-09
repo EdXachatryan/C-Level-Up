@@ -1,24 +1,33 @@
 #include "Client.h"
-extern const char* s_TskManagerFifo ;
-
-
+#include "utility.h"
 Client::~Client()
 {
-	for (auto it = cmdfifoNames.begin(); it != cmdfifoNames.end(); ++it)
+	for (auto it = fifoNames.begin(); it != fifoNames.end(); ++it)
 	{
-		unlink(it->second);
+		std::cout << fifoNames.size();
+		if(unlink(it->c_str()) != 0)
+			std::cerr << it->c_str() << " didn't delete" << std::endl;
 	}
 }
 
-void Client::execCommand(const char* FIFOName, const char* command )
+void Client::execCommand(std::string fifoName, std::string command )
 {
-	cmdfifoNames.insert(std::make_pair( command,FIFOName));
-	TaskManager::getInsance()->createTask(FIFOName, command);
+	fifoNames.insert(fifoName);
+	TaskManager::getInsance()->createTask(fifoName, command);
 }
 
-void Client::showCommandInfo(const char* name)
+void Client::showCommandInfo(std::string name)
 {
-	int fd = open(name, O_RDONLY );
+	if (fifoNames.find(name) == fifoNames.end())
+	{
+		std::cout << "=============================================" << std::endl;
+		std::cout <<  name << " not found" << std::endl;		
+		std::cout << "=============================================" << std::endl;
+		return;
+	}
+
+	int fd = open(name.c_str(), O_RDONLY );
+	exitIfNotSucceed(fd, "cannot open fifo for read");
 	char* buffer = new char[1024];
 	int n;
 	std::cout << "=============================================" << std::endl;
@@ -33,19 +42,19 @@ void Client::showCommandInfo(const char* name)
 }
 
 
-void Client::removeFifo(const char* fifoName)
+void Client::removeFifo(std::string fifoName)
 {
-	auto itFifo = cmdfifoNames.find(fifoName);
-	if (itFifo == cmdfifoNames.end())
+	auto itFifo = fifoNames.find(fifoName);
+	if (itFifo == fifoNames.end())
 	{
 		std::cout << "Here is no " << fifoName << " file" << std::endl;
 		return;
 	}
 
- 	if (unlink(itFifo->second ) == 0)
-	 	cmdfifoNames.erase(itFifo);
+ 	if (unlink(fifoName.c_str()) == 0)
+	 	fifoNames.erase(fifoName);
 	else
 	{
-		std::cerr << "Fail to remove " << itFifo->second ;
+		std::cerr << "Fail to remove " << fifoName ;
 	}	 
 }
