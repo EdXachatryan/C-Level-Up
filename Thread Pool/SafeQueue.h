@@ -10,29 +10,36 @@ template<typename T>
 class SafeQueue 
 {
 	public:
+		SafeQueue()
+		{
+   			m_mutex = PTHREAD_MUTEX_INITIALIZER;
+		}
+		
 		bool empty()
 		{
-			utils::uniqueLock objLock(m_mutex);
+			utils::uniqueLock objLock(&m_mutex);
 			return m_queue.empty();
 		}
 
 		int size() 
 		{
-			utils::uniqueLock objLock(m_mutex);
+			utils::uniqueLock objLock(&m_mutex);
 			return m_queue.size();
 		}
 
 		void enqueue(T& t)
 		{
-			utils::uniqueLock objLock(m_mutex);
+			utils::uniqueLock objLock(&m_mutex);
 			m_queue.push(t);
 		}
 
 		bool dequeue(T& t)
 		{
-			utils::uniqueLock objLock(m_mutex);
+			utils::uniqueLock objLock(&m_mutex);
 			if (m_queue.empty())
+			{
 				return false;
+			}
 
 			t = m_queue.front();
 

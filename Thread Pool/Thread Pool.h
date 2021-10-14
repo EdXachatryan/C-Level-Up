@@ -26,13 +26,15 @@ class ThreadPool
 				ThreadPool* m_pool;
 		};
 
-
 	public:
 		ThreadPool(const int maxThreads) 
 			: m_threads(std::vector<pthread_t>(maxThreads)), m_shutdown(false)  
 			{
+				m_PoolCV = PTHREAD_COND_INITIALIZER;
+				m_PoolMutex = PTHREAD_MUTEX_INITIALIZER;
 				init();
 			}
+		~ThreadPool();
 
 		ThreadPool(const ThreadPool&) = delete;
 		ThreadPool(ThreadPool&& ) = delete;
@@ -42,7 +44,7 @@ class ThreadPool
 
 		void init();
 		void shutDown();
-		void addTask(typeOfPhtreadTask fn);
+		void addTask(typeOfTasks fn);
 
 		struct ThreadWorkerWrapper
 		{
@@ -54,10 +56,10 @@ class ThreadPool
 
 	private:
   		bool m_shutdown;
-		SafeQueue<typeOfPhtreadTask> m_TaskQueue;
+		SafeQueue<typeOfTasks> m_TaskQueue;
 		std::vector<pthread_t>	m_threads;
 
-		std::vector<ThreadWorkerWrapper> m_WorkersWrapper;
+		std::vector<ThreadWorkerWrapper*> m_WorkersWrapper;
 
 		pthread_cond_t m_PoolCV;  // conditional variable , wait/signal if queue empty/non empty
 		pthread_mutex_t m_PoolMutex;  

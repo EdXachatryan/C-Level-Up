@@ -3,47 +3,54 @@
 
 #include <iostream>
 #include "pthread.h"
-
+#include <thread>
+#include <unistd.h>
 namespace
 {
 	pthread_mutex_t printMutex = PTHREAD_MUTEX_INITIALIZER; // unnamed namespace for restricting the variable scope
+
+	std::mutex mtx;
 }
 
 namespace utils
 {
-
-	inline void exitIfError(const int err, const int expectValue = 0, const std::string& msg = "")
-	{
-		if (err != expectValue)
-		{
-			std::cout << msg << std::endl;
-			exit(EXIT_FAILURE);
-		}
-	}
-
+	// forward declaretions
+	void exitIfError(const int err, const int expectValue , const std::string& msg );
 
 	struct uniqueLock
 	{
-		uniqueLock(pthread_mutex_t& mtx) : m_mutex(mtx)
+		uniqueLock( pthread_mutex_t* mtx) : m_mutex{mtx}
 		{
-			int resLock = pthread_mutex_lock( &m_mutex );
+			int resLock = pthread_mutex_lock( m_mutex );
 			exitIfError(resLock, 0, "Cannot lock mutex.");
 		}
 
 		~uniqueLock()
 		{
-			int resLock = pthread_mutex_unlock( &m_mutex );
+			int resLock = pthread_mutex_unlock( m_mutex );
 			exitIfError(resLock, 0, "Cannot unlock mutex.");
 		}
 
 		private:
-			pthread_mutex_t& m_mutex;
+			pthread_mutex_t* m_mutex;
 	};
 	
 
+	inline void exitIfError(const int err, const int expectValue = 0, const std::string& msg = "")
+	{
+		if (err != expectValue)
+		{
+			{
+				uniqueLock objLock(&printMutex);
+				std::cout << msg << std::endl;
+			}
+			exit(EXIT_FAILURE);
+		}
+	}
+
 	inline void syncPrint(const std::string& msg)
 	{
-		uniqueLock objLock(printMutex);
+		uniqueLock objLock(&printMutex);
 		std::cout << msg << std::endl;
 	}
 }
